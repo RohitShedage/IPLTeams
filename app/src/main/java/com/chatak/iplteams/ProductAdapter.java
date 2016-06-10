@@ -10,20 +10,20 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class ProductAdapter extends ArrayAdapter<String> {
+public class ProductAdapter extends ArrayAdapter<Product> {
 
     private static class ViewHolder {
         public TextView tvTitle;
     }
 
-    public ProductAdapter(Context context, ArrayList<String> products) {
+    public ProductAdapter(Context context, ArrayList<Product> products) {
         super(context, 0, products);
     }
 
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        final String product = getItem(position);
+        final Product product = getItem(position);
         
         ViewHolder viewHolder;
         
@@ -37,7 +37,7 @@ public class ProductAdapter extends ArrayAdapter<String> {
             viewHolder = (ViewHolder) convertView.getTag();
         }
         
-        viewHolder.tvTitle.setText(product);
+        viewHolder.tvTitle.setText(product.getTitle());
 
         return convertView;
     }
