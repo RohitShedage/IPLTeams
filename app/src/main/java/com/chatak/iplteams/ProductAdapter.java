@@ -14,12 +14,17 @@ public class ProductAdapter extends ArrayAdapter<Product> {
 
     private static class ViewHolder {
         public TextView tvTitle;
+        public TextView tvWeight;
+        public TextView tvPrice;
     }
 
     public ProductAdapter(Context context, ArrayList<Product> products) {
         super(context, 0, products);
     }
 
+    private String convertToString(double val) {
+        return val + "";
+    }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -32,13 +37,16 @@ public class ProductAdapter extends ArrayAdapter<Product> {
             LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.item_product, parent, false);
             viewHolder.tvTitle = (TextView)convertView.findViewById(R.id.tvTitle);
+            viewHolder.tvWeight = (TextView)convertView.findViewById(R.id.tvWeight);
+            viewHolder.tvPrice = (TextView)convertView.findViewById(R.id.tvPrice);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
         
         viewHolder.tvTitle.setText(product.getTitle());
-
+        viewHolder.tvWeight.setText(product.getWeight());
+        viewHolder.tvPrice.setText(convertToString(product.getPrice()));
         return convertView;
     }
 }
