@@ -102,9 +102,9 @@ public class MainActivity extends AppCompatActivity {
             ArrayList<Product> filteredProducts = new ArrayList<Product>();
 
             for (Product product: products) {
-                //if (Integer.parseInt(product.getCakeId()) == Integer.parseInt(getArguments().getString(ARG_SECTION_NUMBER))) {
+                if (Integer.parseInt(product.getCakeId()) == getArguments().getInt(ARG_SECTION_NUMBER)) {
                     filteredProducts.add(product);
-                //}
+                }
             }
             return filteredProducts;
         }
