@@ -7,12 +7,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import com.loopj.android.http.JsonHttpResponseHandler;
+
+import org.json.JSONArray;
+
 import java.util.ArrayList;
+
+import cz.msebera.android.httpclient.Header;
 
 public class PlaceholderFragment extends Fragment {
     private static final String ARG_SECTION_NUMBER = "section_number";
 
-    private static final ArrayList<Product> products = getAllProducts();
+    private static String PRODUCT_RETRIEVAL_STATUS = "NOT_STARTED";
+
+    private static ArrayList<Product> ALL_PRODUCTS = new ArrayList<Product>();
+
+    private ListView lvProducts;
+    private ProductAdapter productAdapter;
+    private ProductClient client;
+
 
     public PlaceholderFragment() {
     }
@@ -29,57 +42,41 @@ public class PlaceholderFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        ListView textView = (ListView) rootView.findViewById(R.id.section_label);
-
-        textView.setAdapter(new ProductAdapter(getContext(), filterProducts()));
+        lvProducts = (ListView) rootView.findViewById(R.id.section_label);
+        ArrayList<Product> products = new ArrayList<Product>();
+        productAdapter = new ProductAdapter(getContext(), products);
+        lvProducts.setAdapter(productAdapter);
+        fetchProducts();
         return rootView;
     }
 
-    public ArrayList<Product> filterProducts() {
-        ArrayList<Product> filteredProducts = new ArrayList<Product>();
+    public void filterProducts() {
+        productAdapter.clear();
 
-        for (Product product: products) {
+        for (Product product: ALL_PRODUCTS) {
             if (Integer.parseInt(product.getCakeId()) == getArguments().getInt(ARG_SECTION_NUMBER)) {
-                filteredProducts.add(product);
+                productAdapter.add(product);
             }
         }
-        return filteredProducts;
+        productAdapter.notifyDataSetChanged();
     }
 
-    public static ArrayList<Product> getAllProducts() {
-        ArrayList<Product> products = new ArrayList<Product>();
-
-        products.add(new Product("1","17 Fake Street","500 gram", 251));
-        products.add(new Product("1","17 Fake Street","500 gram", 252));
-        products.add(new Product("1","17 Fake Street","500 gram", 253));
-        products.add(new Product("1","17 Fake Street","500 gram", 254));
-        products.add(new Product("1","17 Fake Street","500 gram", 255));
-        products.add(new Product("1","17 Fake Street","500 gram", 256));
-        products.add(new Product("1","17 Fake Street","500 gram", 257));
-        products.add(new Product("1","17 Fake Street","500 gram", 258));
-        products.add(new Product("1","17 Fake Street","500 gram", 259));
-        products.add(new Product("1","17 Fake Street","500 gram", 260));
-        products.add(new Product("2","17 Fake Street","500 gram", 261));
-        products.add(new Product("2","17 Fake Street","500 gram", 262));
-        products.add(new Product("2","17 Fake Street","500 gram", 263));
-        products.add(new Product("2","17 Fake Street","500 gram", 264));
-        products.add(new Product("2","17 Fake Street","500 gram", 265));
-        products.add(new Product("2","17 Fake Street","500 gram", 266));
-        products.add(new Product("2","17 Fake Street","500 gram", 267));
-        products.add(new Product("2","17 Fake Street","500 gram", 268));
-        products.add(new Product("2","17 Fake Street","500 gram", 269));
-        products.add(new Product("2","17 Fake Street","500 gram", 270));
-        products.add(new Product("3","17 Fake Street","500 gram", 271));
-        products.add(new Product("3","17 Fake Street","500 gram", 272));
-        products.add(new Product("3","17 Fake Street","500 gram", 273));
-        products.add(new Product("3","17 Fake Street","500 gram", 274));
-        products.add(new Product("3","17 Fake Street","500 gram", 275));
-        products.add(new Product("3","17 Fake Street","500 gram", 276));
-        products.add(new Product("3","17 Fake Street","500 gram", 277));
-        products.add(new Product("3","17 Fake Street","500 gram", 278));
-        products.add(new Product("3","17 Fake Street","500 gram", 279));
-        products.add(new Product("3","17 Fake Street","500 gram", 280));
-
-        return products;
+    private void fetchProducts() {
+        if(PRODUCT_RETRIEVAL_STATUS.equalsIgnoreCase("NOT_STARTED")) {
+            PRODUCT_RETRIEVAL_STATUS = "STARTED";
+            client = new ProductClient();
+            client.getProducts(new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                    if(response != null) {
+                        ALL_PRODUCTS.addAll(Product.fromJson(response));
+                        PRODUCT_RETRIEVAL_STATUS = "COMPLETED";
+                    }
+                    filterProducts();
+                }
+            });
+        } else {
+            filterProducts();
+        }
     }
 }
